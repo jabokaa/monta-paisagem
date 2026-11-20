@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6cc6ff"/><stop offset="1" stop-color="#d9f2ff"/></linearGradient>
+    <clipPath id="c"><rect x="56" y="56" width="400" height="400" rx="70"/></clipPath>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#ffcf4a"/>
+  <g clip-path="url(#c)">
+    <rect x="56" y="56" width="400" height="400" fill="url(#s)"/>
+    <circle cx="370" cy="140" r="58" fill="#ffe680" opacity=".5"/>
+    <circle cx="370" cy="140" r="38" fill="#ffd23f"/>
+    <g fill="#fff"><ellipse cx="150" cy="150" rx="46" ry="22"/><ellipse cx="185" cy="138" rx="34" ry="26"/><ellipse cx="215" cy="152" rx="36" ry="19"/></g>
+    <path d="M56 300Q180 240 300 290T456 270V456H56Z" fill="#8bd46e"/>
+    <path d="M56 360Q200 310 330 355T456 345V456H56Z" fill="#4fb153"/>
+    <path d="M56 410Q250 380 456 415V456H56Z" fill="#3c9a45"/>
+    <!-- casinha -->
+    <rect x="128" y="300" width="96" height="76" fill="#ff8f5a"/>
+    <path d="M116 304L176 252L236 304Z" fill="#e53935"/>
+    <rect x="162" y="332" width="28" height="44" fill="#7a4a2a"/>
+    <!-- árvore -->
+    <rect x="322" y="318" width="16" height="50" fill="#7a4a2a"/>
+    <circle cx="330" cy="300" r="40" fill="#2e8b3e"/>
+  </g>
+  <rect x="56" y="56" width="400" height="400" rx="70" fill="none" stroke="#22305c" stroke-width="16"/>
+</svg>
