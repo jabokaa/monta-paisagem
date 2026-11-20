@@ -1,6 +1,6 @@
 // Guarda o app no aparelho para funcionar sem internet.
 // Ao publicar uma versão nova, aumente o número abaixo.
-const CACHE = 'monta-paisagem-v1';
+const CACHE = 'monta-paisagem-v2';
 const FILES = [
   './',
   './index.html',

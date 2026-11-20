@@ -62,6 +62,8 @@ canvas{pointer-events:none}
 .selbar{position:absolute;display:flex;gap:4px;background:var(--ink);padding:5px;border-radius:14px;pointer-events:auto;z-index:5}
 .selbar button{width:40px;height:40px;border:0;border-radius:10px;background:var(--panel);color:var(--ink);font:700 20px Fredoka,sans-serif;cursor:pointer}
 .selbar button.del{background:var(--acc);color:#fff}
+.rot{position:absolute;width:max(36px,4.4cqw);height:max(36px,4.4cqw);border-radius:50%;background:var(--ink);color:var(--panel);border:3px solid #fff;display:grid;place-items:center;font:700 max(20px,2.4cqw)/1 Fredoka,sans-serif;transform:translate(-50%,-50%);pointer-events:auto;cursor:grab;z-index:5;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.rot:active{cursor:grabbing}
 .tray{background:var(--panel);border-radius:22px;padding:10px 12px 12px;box-shadow:0 5px 0 var(--soft)}
 .search{width:100%;box-sizing:border-box;border:0;border-radius:999px;padding:10px 18px;margin-bottom:8px;font:500 16px Fredoka,sans-serif;background:var(--soft);color:var(--ink);min-height:44px}
 .search:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
@@ -137,7 +139,7 @@ canvas{pointer-events:none}
         <input class="search" id="search" type="search" placeholder="🔍 Pesquisar emoji (ex.: gato, coração, chuva)" aria-label="Pesquisar emoji" autocomplete="off">
         <div class="tabs" id="tabs"></div>
         <div class="items" id="items"></div>
-        <p class="hint">Arraste uma figurinha para a paisagem (ou toque nela). Use o lápis para desenhar.</p>
+        <p class="hint">Arraste uma figurinha para a paisagem (ou toque nela). Use a bolinha ⟳ para girar e o lápis para desenhar.</p>
       </div>
     </div>
   </div>
@@ -234,19 +236,20 @@ function renderTray(){
     list=list.map((e,i)=>[e,sc(e),i]).sort((a,b)=>a[1]-b[1]||a[2]-b[2]).map(a=>a[0])}
   $('items').innerHTML=list.length?list.map(e=>{const n=(KW[e]||'').split(';')[0]||e;return `<button class="it" data-e="${e}" title="${n}" aria-label="${n}">${e}</button>`}).join(''):'<p class="empty">Nenhum emoji encontrado 😕</p>';
 }
-const stkStyle=o=>`left:${o.x}%;top:${o.y}%;font-size:${o.s}cqw;transform:translate(-50%,-50%) scaleX(${o.f})`;
+const stkStyle=o=>`left:${o.x}%;top:${o.y}%;font-size:${o.s}cqw;transform:translate(-50%,-50%) rotate(${o.r||0}deg) scaleX(${o.f})`;
 const SW=W/100,SH=H/100;
 function geo(s){if(s.g&&s!==cur)return s.g;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
   for(const [x,y] of s.p){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
   const g={o:[(x0+x1)/2,(y0+y1)/2],b:[x0,y0,x1,y1]};if(s!==cur)s.g=g;return g}
-const tf=s=>{const g=geo(s),k=s.k||1;return{ox:g.o[0],oy:g.o[1],dx:s.dx||0,dy:s.dy||0,kx:k*(s.f||1),ky:k}};
-const toWorld=(s,x,y,t=tf(s))=>[(x-t.ox)*t.kx+t.ox+t.dx,(y-t.oy)*t.ky+t.oy+t.dy];
-const toLocal=(s,x,y,t=tf(s))=>[(x-t.ox-t.dx)/t.kx+t.ox,(y-t.oy-t.dy)/t.ky+t.oy];
+const tf=s=>{const g=geo(s),k=s.k||1,a=(s.r||0)*Math.PI/180;return{ox:g.o[0],oy:g.o[1],dx:s.dx||0,dy:s.dy||0,kx:k*(s.f||1),ky:k,a,c:Math.cos(a),sn:Math.sin(a)}};
+const toWorld=(s,x,y,t=tf(s))=>{const lx=(x-t.ox)*t.kx,ly=(y-t.oy)*t.ky;return[lx*t.c-ly*t.sn+t.ox+t.dx,lx*t.sn+ly*t.c+t.oy+t.dy]};
+const toLocal=(s,x,y,t=tf(s))=>{const ux=x-t.ox-t.dx,uy=y-t.oy-t.dy;return[(ux*t.c+uy*t.sn)/t.kx+t.ox,(-ux*t.sn+uy*t.c)/t.ky+t.oy]};
 function bboxOf(it){
-  if(it.kind==='s'){const o=it.o,h=o.s*SW*.55;return[o.x*SW-h,o.y*SH-h,o.x*SW+h,o.y*SH+h]}
+  if(it.kind==='s'){const o=it.o,a=(o.r||0)*Math.PI/180,h=o.s*SW*.55*(Math.abs(Math.cos(a))+Math.abs(Math.sin(a)));return[o.x*SW-h,o.y*SH-h,o.x*SW+h,o.y*SH+h]}
   const st=it.o,g=geo(st),pad=st.t==='spray'?3:st.w/2,t=tf(st);
-  const a=toWorld(st,g.b[0]-pad,g.b[1]-pad,t),b=toWorld(st,g.b[2]+pad,g.b[3]+pad,t);
-  return[Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[0],b[0]),Math.max(a[1],b[1])]}
+  const cs=[[g.b[0]-pad,g.b[1]-pad],[g.b[2]+pad,g.b[1]-pad],[g.b[0]-pad,g.b[3]+pad],[g.b[2]+pad,g.b[3]+pad]].map(([x,y])=>toWorld(st,x,y,t));
+  const xs=cs.map(p=>p[0]),ys=cs.map(p=>p[1]);
+  return[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)]}
 function selItems(){const r=[];
   for(const o of S.stickers)if(sel.has('s:'+o.id))r.push({kind:'s',o});
   for(const o of S.strokes)if(sel.has('t:'+o.id))r.push({kind:'t',o});return r}
@@ -262,14 +265,15 @@ function selOverlay(){
   let h='';
   for(const it of items)if(it.kind==='t'){const b=bboxOf(it);h+=`<div class="sbox" style="left:${b[0]/SW}%;top:${b[1]/SH}%;width:${(b[2]-b[0])/SW}%;height:${(b[3]-b[1])/SH}%"></div>`}
   const g=groupBox(items),cx=(g[0]+g[2])/2/SW,top=g[1]/SH,bot=g[3]/SH,below=top<22;
-  return h+`<div class="selbar" style="left:clamp(134px,${cx}%,calc(100% - 134px));top:${Math.max(0,below?Math.min(bot,86):top)}%;transform:translate(-50%,${below?'.8cqw':'calc(-100% - .8cqw)'})">
-  <button data-a="menor" title="Diminuir" aria-label="Diminuir">−</button><button data-a="maior" title="Aumentar" aria-label="Aumentar">+</button><button data-a="virar" title="Virar" aria-label="Virar">⇄</button><button data-a="copiar" title="Copiar" aria-label="Copiar">⧉</button><button data-a="frente" title="Trazer para frente" aria-label="Trazer para frente">▲</button><button data-a="apagar" class="del" title="Apagar" aria-label="Apagar">✕</button></div>`;
+  h+=`<div class="rot" title="Arraste para girar" aria-label="Girar" style="left:clamp(22px,${g[2]/SW+1.5}%,calc(100% - 22px));top:clamp(22px,${(below?g[1]:g[3])/SH+(below?-2:2)}%,calc(100% - 22px))">⟳</div>`;
+  return h+`<div class="selbar" style="left:clamp(158px,${cx}%,calc(100% - 158px));top:${Math.max(0,below?Math.min(bot,86):top)}%;transform:translate(-50%,${below?'.8cqw':'calc(-100% - .8cqw)'})">
+  <button data-a="menor" title="Diminuir" aria-label="Diminuir">−</button><button data-a="maior" title="Aumentar" aria-label="Aumentar">+</button><button data-a="virar" title="Virar" aria-label="Virar">⇄</button><button data-a="girar" title="Girar" aria-label="Girar">↻</button><button data-a="copiar" title="Copiar" aria-label="Copiar">⧉</button><button data-a="frente" title="Trazer para frente" aria-label="Trazer para frente">▲</button><button data-a="apagar" class="del" title="Apagar" aria-label="Apagar">✕</button></div>`;
 }
-function refreshSel(){layer.querySelectorAll('.sbox,.selbar').forEach(x=>x.remove());layer.insertAdjacentHTML('beforeend',selOverlay())}
+function refreshSel(){layer.querySelectorAll('.sbox,.selbar,.rot').forEach(x=>x.remove());layer.insertAdjacentHTML('beforeend',selOverlay())}
 function drawStroke(s,from=1){
   ctx.globalCompositeOperation=s.t==='borracha'?'destination-out':'source-over';
-  const moved=s!==cur&&(s.dx||s.dy||(s.k&&s.k!==1)||s.f===-1);
-  if(moved){const t=tf(s);ctx.save();ctx.translate(t.ox+t.dx,t.oy+t.dy);ctx.scale(t.kx,t.ky);ctx.translate(-t.ox,-t.oy)}
+  const moved=s!==cur&&(s.dx||s.dy||(s.k&&s.k!==1)||s.f===-1||s.r);
+  if(moved){const t=tf(s);ctx.save();ctx.translate(t.ox+t.dx,t.oy+t.dy);ctx.rotate(t.a);ctx.scale(t.kx,t.ky);ctx.translate(-t.ox,-t.oy)}
   if(s.t==='spray'){ctx.fillStyle=s.c;for(let i=Math.max(0,from-1);i<s.p.length;i++)ctx.fillRect(s.p[i][0],s.p[i][1],2.6,2.6)}
   else{ctx.strokeStyle=s.c;ctx.lineWidth=s.w;ctx.lineCap=ctx.lineJoin='round';
     const p=s.p,a=Math.max(0,from-1);ctx.beginPath();ctx.moveTo(p[a][0],p[a][1]);
@@ -318,6 +322,16 @@ function duplicate(items,n=1){
     else{S.strokes.push({...it.o,id,dx:(it.o.dx||0)+ox,dy:(it.o.dy||0)+oy});ns.add('t:'+id)}}
   sel=ns;
 }
+const snapRot=it=>({...it,x:it.o.x,y:it.o.y,dx:it.o.dx||0,dy:it.o.dy||0,r:it.o.r||0});
+const normDeg=d=>{d=((d%360)+360)%360;return d>180?d-360:d};
+function rotateItems(snaps,G,deg){
+  const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a);
+  const rot=([x,y])=>[G[0]+(x-G[0])*c-(y-G[1])*s,G[1]+(x-G[0])*s+(y-G[1])*c];
+  for(const it of snaps){
+    if(it.kind==='s'){const [x,y]=rot([it.x*SW,it.y*SH]);it.o.x=Math.min(100,Math.max(0,x/SW));it.o.y=Math.min(100,Math.max(0,y/SH))}
+    else{const o=geo(it.o).o,[x,y]=rot([o[0]+it.dx,o[1]+it.dy]);it.o.dx=x-o[0];it.o.dy=y-o[1]}
+    it.o.r=normDeg(it.r+deg)}
+}
 function groupAction(a){
   const items=selItems();if(!items.length)return;
   push();
@@ -329,15 +343,21 @@ function groupAction(a){
     for(const it of items){const v=it.kind==='s'?it.o.s:(it.o.k||1),lo=it.kind==='s'?3:.15,hi=it.kind==='s'?32:8;m=up?Math.min(m,hi/v):Math.max(m,lo/v)}
     if(up?m<=1.01:m>=.99){hist.pop();return}
     for(const it of items){const c=ctrOf(it);setCtr(it,[G[0]+(c[0]-G[0])*m,G[1]+(c[1]-G[1])*m]);if(it.kind==='s')it.o.s*=m;else it.o.k=(it.o.k||1)*m}}
-  if(a==='virar')for(const it of items){const c=ctrOf(it);setCtr(it,[2*G[0]-c[0],c[1]]);it.o.f=-(it.o.f||1)}
+  if(a==='virar')for(const it of items){const c=ctrOf(it);setCtr(it,[2*G[0]-c[0],c[1]]);it.o.f=-(it.o.f||1);if(it.o.r)it.o.r=-it.o.r}
+  if(a==='girar'||a==='girarE')rotateItems(items.map(snapRot),G,a==='girar'?45:-45);
   if(a==='frente'){const fr=(arr,p)=>[...arr.filter(o=>!sel.has(p+o.id)),...arr.filter(o=>sel.has(p+o.id))];S.stickers=fr(S.stickers,'s:');S.strokes=fr(S.strokes,'t:')}
   if(a==='apagar'){S.stickers=S.stickers.filter(o=>!sel.has('s:'+o.id));S.strokes=S.strokes.filter(o=>!sel.has('t:'+o.id));sel=new Set()}
   renderStickers();redraw();save();
 }
-let drag=null,lasso=null,rafP=0;
+let drag=null,lasso=null,spin=null,rafP=0;
 const later=fn=>{if(!rafP)rafP=requestAnimationFrame(()=>{rafP=0;fn()})};
 scene.addEventListener('pointerdown',e=>{
   if(tool!=='mover')return;
+  if(e.target.closest('.rot')){
+    const items=selItems();if(!items.length)return;
+    e.preventDefault();scene.setPointerCapture(e.pointerId);
+    const g=groupBox(items),G=[(g[0]+g[2])/2,(g[1]+g[3])/2],[x,y]=toCv(e);
+    spin={G,a0:Math.atan2(y-G[1],x-G[0]),moved:false,hasT:items.some(it=>it.kind==='t'),items:items.map(snapRot)};return}
   const b=e.target.closest('.selbar button');
   if(b){e.preventDefault();groupAction(b.dataset.a);return}
   if(e.target.closest('.selbar'))return;
@@ -356,6 +376,12 @@ scene.addEventListener('pointerdown',e=>{
   }
 });
 scene.addEventListener('pointermove',e=>{
+  if(spin){const [x,y]=toCv(e);let d=(Math.atan2(y-spin.G[1],x-spin.G[0])-spin.a0)*180/Math.PI;
+    if(e.shiftKey)d=Math.round(d/15)*15;else{const n=Math.round(d/90)*90;if(Math.abs(d-n)<4)d=n}
+    if(!spin.moved){if(Math.abs(d)<1)return;push();spin.moved=true}
+    rotateItems(spin.items,spin.G,d);
+    for(const it of spin.items)if(it.kind==='s'){const el=layer.querySelector(`.stk[data-id="${it.o.id}"]`);if(el)el.style.cssText=stkStyle(it.o)}
+    const hasT=spin.hasT;later(()=>{if(hasT)redraw();refreshSel()});return}
   if(drag){const [x,y]=toCv(e),dx=x-drag.sx,dy=y-drag.sy;
     if(!drag.moved){if(Math.hypot(dx,dy)<8)return;push();drag.moved=true}
     let strokes=false;
@@ -369,6 +395,7 @@ scene.addEventListener('pointermove',e=>{
     const l=lasso;Object.assign(l.el.style,{left:Math.min(l.x0,l.x1)/SW+'%',top:Math.min(l.y0,l.y1)/SH+'%',width:Math.abs(l.x1-l.x0)/SW+'%',height:Math.abs(l.y1-l.y0)/SH+'%'})}
 });
 const endPointer=()=>{
+  if(spin){if(spin.moved){save();redraw();refreshSel()}spin=null}
   if(drag){if(drag.moved)save();drag=null}
   if(lasso){const l=lasso;lasso=null;if(l.el)l.el.remove();
     const r=[Math.min(l.x0,l.x1),Math.min(l.y0,l.y1),Math.max(l.x0,l.x1),Math.max(l.y0,l.y1)];
@@ -430,6 +457,7 @@ document.addEventListener('keydown',e=>{
   if(mod&&k==='c'&&has){clip=selItems().map(it=>({kind:it.kind,o:{...it.o}}));pasteN=0;toast('Copiado 📋')}
   if(mod&&k==='d'&&has){e.preventDefault();push();duplicate(selItems());renderStickers();redraw();save()}
   if(mod&&k==='v'&&clip){e.preventDefault();push();pasteN++;toMover();duplicate(clip,pasteN);renderStickers();redraw();save()}
+  if(!mod&&k==='r'&&has){e.preventDefault();groupAction(e.shiftKey?'girarE':'girar')}
   if((e.key==='Delete'||e.key==='Backspace')&&has){e.preventDefault();groupAction('apagar')}
   if(e.key==='Escape'&&sel.size){sel=new Set();renderStickers()}
 });
@@ -445,7 +473,7 @@ let toastT;function toast(m){const t=$('toast');t.textContent=m;t.classList.add(
 function thumb(){return new Promise(ok=>{
   const tw=480,th=300,c=document.createElement('canvas');c.width=tw;c.height=th;const g=c.getContext('2d');
   const fin=()=>{g.drawImage(cv,0,0,tw,th);g.textAlign='center';g.textBaseline='middle';
-    for(const o of S.stickers){const px=o.s/100*tw;g.save();g.translate(o.x/100*tw,o.y/100*th);g.scale(o.f,1);
+    for(const o of S.stickers){const px=o.s/100*tw;g.save();g.translate(o.x/100*tw,o.y/100*th);g.rotate((o.r||0)*Math.PI/180);g.scale(o.f,1);
       g.font=`${px}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;g.fillText(o.e,0,px*.06);g.restore()}
     try{ok(c.toDataURL('image/jpeg',.82))}catch(e){ok('')}};
   const img=new Image();img.onload=()=>{g.drawImage(img,0,0,tw,th);fin()};img.onerror=()=>{g.fillStyle='#fff';g.fillRect(0,0,tw,th);fin()};
