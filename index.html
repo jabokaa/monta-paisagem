@@ -95,8 +95,8 @@ canvas{pointer-events:none}
 .mob,.sheetbg{display:none}
 .sheethd{grid-column:1/-1;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font:700 20px Fredoka,sans-serif}
 .sheetx{width:44px;height:44px;flex:none;border:0;border-radius:12px;background:var(--soft);color:var(--ink);font:700 20px Fredoka,sans-serif;cursor:pointer}
-/* ---------- celular: cena ocupa a tela, figurinhas e paisagens em janelas ---------- */
-@media (max-width:700px),(max-height:500px){
+/* ---------- layout único (celular, tablet e computador): cena ocupa a tela, figurinhas e paisagens em janelas ---------- */
+@media all{
   html,body{height:100%;overflow:hidden;overscroll-behavior:none}
   .app{height:100vh;height:100dvh;padding:8px;display:flex;flex-direction:column;gap:8px;max-width:none}
   header,.work,.stage{display:contents}
@@ -119,26 +119,22 @@ canvas{pointer-events:none}
   .land{width:auto}.land svg{height:64px}
   .search,.tabs{flex:none}
   .tabs{touch-action:pan-x;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
-  .items{max-height:none;flex:1;min-height:0;touch-action:pan-y}
+  .items{max-height:none;flex:1;min-height:0;touch-action:pan-y;align-content:start}
   .it{touch-action:pan-y}
-  .it:hover{transform:none;background:transparent}
-  .install{position:fixed;top:12px;right:12px;z-index:30;padding:6px 14px;min-height:40px;font-size:15px}
 }
-/* celular deitado (html.ls) — e celular em pé, onde o app inteiro é girado 90° (html.r90) */
+@media (hover:none){.it:hover{transform:none;background:transparent}}
+.install{position:fixed;top:12px;right:12px;z-index:30;padding:6px 14px;min-height:40px;font-size:15px}
+/* layout com menu lateral em 2 colunas (html.ls) */
 :root{--W:100vw;--H:100dvh}
-html.r90{--W:100dvh;--H:100vw}
 html.ls .app{flex-direction:row}
-html.ls .scene{width:min(calc(var(--W) - 100px),calc((var(--H) - 16px)*1.6))}
-html.ls .tools{order:0;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:64px;touch-action:pan-y;padding:8px 4px}
-html.ls .grp,html.ls .grp.cols{flex-direction:column}
-html.ls .grp.cols{flex-direction:row;flex-wrap:wrap;justify-content:center;width:100%}
-html.ls .col{width:22px;height:22px}
+html.ls .scene{width:min(calc(var(--W) - 140px),calc((var(--H) - 16px)*1.6))}
+html.ls .tools{order:0;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:108px;touch-action:pan-y;padding:8px 6px}
+html.ls .grp{display:grid;grid-template-columns:1fr 1fr;gap:4px;justify-items:center;align-items:center;width:100%}
+html.ls .grp.cols{grid-template-columns:repeat(4,1fr)}
+html.ls .col{width:20px;height:20px}
+html.ls .sz{width:28px}
 html.ls .tools hr{width:100%;height:0;border-left:0;border-top:2px dashed var(--soft)}
-html.ls .tray,html.ls .lands{left:auto;top:0;width:min(440px,70%);max-height:none;border-radius:22px 0 0 22px}
-html.r90 .app{position:fixed;top:0;left:100vw;width:100dvh;height:100vw;transform-origin:0 0;transform:rotate(90deg)}
-html.r90 .tools,html.r90 .items,html.r90 .it,html.r90 .tabs,html.r90 .lands.open{touch-action:pan-x pan-y}
-html.r90 .gal{transform:rotate(90deg);width:min(920px,calc(100dvh - 32px));max-height:calc(100vw - 40px)}
-@media(prefers-reduced-motion:reduce){.it{transition:none}}
+html.ls .tray,html.ls .lands{left:auto;top:0;width:min(440px,70%);max-height:none;border-radius:22px 0 0 22px}@media(prefers-reduced-motion:reduce){.it{transition:none}}
 </style>
 </head>
 <body>
@@ -331,20 +327,10 @@ function renderAll(){renderLands();renderTools();renderTray();renderStickers();r
 
 /* ---------- desenho ---------- */
 let cur=null;
-/* posição do dedo dentro de um elemento (0..1), considerando o app girado 90° no celular em pé */
-const frac=(el,e)=>{const r=el.getBoundingClientRect();
-  return document.documentElement.classList.contains('r90')?[(e.clientY-r.top)/r.height,(r.right-e.clientX)/r.width]:[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+/* posição do dedo dentro de um elemento (0..1) */
+const frac=(el,e)=>{const r=el.getBoundingClientRect();return[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
 const toCv=e=>{const [fx,fy]=frac(cv,e);return[fx*W,fy*H]};
-/* ---------- orientação: celular sempre "deitado" ---------- */
-const mqPort=matchMedia('(max-width:700px) and (orientation:portrait)'),mqLand=matchMedia('(max-height:500px) and (orientation:landscape)');
-function orient(){const h=document.documentElement,r=mqPort.matches;h.classList.toggle('r90',r);h.classList.toggle('ls',r||mqLand.matches)}
-orient();mqPort.addEventListener('change',orient);mqLand.addEventListener('change',orient);
-let triedLock=false;
-document.addEventListener('pointerdown',()=>{
-  if(triedLock||!mqPort.matches)return;triedLock=true;
-  const d=document.documentElement;if(!d.requestFullscreen||!screen.orientation||!screen.orientation.lock)return;
-  d.requestFullscreen({navigationUI:'hide'}).then(()=>screen.orientation.lock('landscape')).catch(()=>{});
-},{capture:true});
+document.documentElement.classList.add('ls');
 function sprayAt(s,[x,y]){for(let i=0;i<22;i++){const a=rnd()*6.283,d=Math.sqrt(rnd())*s.w;s.p.push([Math.round(x+Math.cos(a)*d),Math.round(y+Math.sin(a)*d)])}}
 cv.addEventListener('pointerdown',e=>{
   if(tool==='mover')return;cv.setPointerCapture(e.pointerId);push();
@@ -468,7 +454,7 @@ scene.addEventListener('pointerup',endPointer);scene.addEventListener('pointerca
 
 /* ---------- gaveta: arrastar para a cena ---------- */
 let tdrag=null;
-const mob=matchMedia('(max-width:700px),(max-height:500px)');
+const mob=matchMedia('all');
 function closeSheets(){$('tray').classList.remove('open');$('lands').classList.remove('open');$('sheetbg').classList.remove('on')}
 function openSheet(el){closeSheets();el.classList.add('open');$('sheetbg').classList.add('on')}
 $('emojiBtn').addEventListener('click',()=>openSheet($('tray')));
