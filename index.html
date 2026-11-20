@@ -92,20 +92,58 @@ canvas{pointer-events:none}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:var(--panel);padding:12px 22px;border-radius:999px;font:600 18px Fredoka,sans-serif;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:60}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .tb.big{background:var(--acc);color:#fff}
-@media(max-width:700px){
-  header{flex-direction:column;align-items:stretch;gap:6px}.lands{flex:none}
-  .install{position:absolute;top:max(12px,env(safe-area-inset-top));right:12px;padding:6px 14px;min-height:40px;font-size:15px}
-  .work{grid-template-columns:minmax(0,1fr)}
-  .stage{display:contents}.scene{order:1}.tray{order:3}
-  .tools{flex-direction:row;flex-wrap:wrap;order:2;align-items:center;justify-content:center}
-  .grp{grid-template-columns:repeat(6,40px)}.grp.cols{grid-template-columns:repeat(6,30px)}
-  .tools hr{display:none}.scene{min-width:0}
+.mob,.sheetbg{display:none}
+.sheethd{grid-column:1/-1;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font:700 20px Fredoka,sans-serif}
+.sheetx{width:44px;height:44px;flex:none;border:0;border-radius:12px;background:var(--soft);color:var(--ink);font:700 20px Fredoka,sans-serif;cursor:pointer}
+/* ---------- celular: cena ocupa a tela, figurinhas e paisagens em janelas ---------- */
+@media (max-width:700px),(max-height:500px){
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+  .app{height:100vh;height:100dvh;padding:8px;display:flex;flex-direction:column;gap:8px;max-width:none}
+  header,.work,.stage{display:contents}
+  h1,.hint{display:none}
+  .scene{order:1;flex:none;margin:auto;min-width:0;width:min(100%,calc((100dvh - 100px)*1.6));border-width:4px;border-radius:16px}
+  .tools{order:3;flex:none;flex-direction:row;align-items:center;gap:8px;overflow-x:auto;overflow-y:hidden;padding:6px 8px;border-radius:18px;touch-action:pan-x;scrollbar-width:none}
+  .tools::-webkit-scrollbar{display:none}
+  .grp,.grp.cols{display:flex;gap:4px;flex:none;align-items:center}
+  .tb{width:44px;flex:none}
+  .col{width:30px;height:30px;flex:none}
+  .sz{width:36px;flex:none}
+  .tools hr{display:block;width:0;height:30px;border-top:0;border-left:2px dashed var(--soft);flex:none}
+  .mob{display:flex}
+  .tb.emo{background:var(--acc);color:#fff;font:26px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+  .tb.pai{background:var(--soft);font:24px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+  .sheetbg.on{display:block;position:fixed;inset:0;background:rgba(10,15,40,.55);z-index:40}
+  .tray,.lands{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:80dvh;margin:0;border-radius:22px 22px 0 0;padding:12px;background:var(--panel);display:none;box-shadow:0 -6px 20px rgba(0,0,0,.3)}
+  .tray.open{display:flex;flex-direction:column}
+  .lands.open{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;overflow-y:auto;align-content:start;touch-action:pan-y}
+  .land{width:auto}.land svg{height:64px}
+  .search,.tabs{flex:none}
+  .tabs{touch-action:pan-x;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+  .items{max-height:none;flex:1;min-height:0;touch-action:pan-y}
+  .it{touch-action:pan-y}
+  .it:hover{transform:none;background:transparent}
+  .install{position:fixed;top:12px;right:12px;z-index:30;padding:6px 14px;min-height:40px;font-size:15px}
 }
+/* celular deitado (html.ls) — e celular em pé, onde o app inteiro é girado 90° (html.r90) */
+:root{--W:100vw;--H:100dvh}
+html.r90{--W:100dvh;--H:100vw}
+html.ls .app{flex-direction:row}
+html.ls .scene{width:min(calc(var(--W) - 100px),calc((var(--H) - 16px)*1.6))}
+html.ls .tools{order:0;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:64px;touch-action:pan-y;padding:8px 4px}
+html.ls .grp,html.ls .grp.cols{flex-direction:column}
+html.ls .grp.cols{flex-direction:row;flex-wrap:wrap;justify-content:center;width:100%}
+html.ls .col{width:22px;height:22px}
+html.ls .tools hr{width:100%;height:0;border-left:0;border-top:2px dashed var(--soft)}
+html.ls .tray,html.ls .lands{left:auto;top:0;width:min(440px,70%);max-height:none;border-radius:22px 0 0 22px}
+html.r90 .app{position:fixed;top:0;left:100vw;width:100dvh;height:100vw;transform-origin:0 0;transform:rotate(90deg)}
+html.r90 .tools,html.r90 .items,html.r90 .it,html.r90 .tabs,html.r90 .lands.open{touch-action:pan-x pan-y}
+html.r90 .gal{transform:rotate(90deg);width:min(920px,calc(100dvh - 32px));max-height:calc(100vw - 40px)}
 @media(prefers-reduced-motion:reduce){.it{transition:none}}
 </style>
 </head>
 <body>
 <div class="app">
+  <div class="sheetbg" id="sheetbg"></div>
   <header>
     <h1>Monta Paisagem</h1>
     <div class="lands" id="lands" aria-label="Paisagens"></div>
@@ -113,6 +151,11 @@ canvas{pointer-events:none}
   </header>
   <div class="work">
     <aside class="tools" aria-label="Ferramentas">
+      <div class="grp mob">
+        <button class="tb emo" id="emojiBtn" title="Figurinhas" aria-label="Figurinhas">😀</button>
+        <button class="tb pai" id="landBtn" title="Paisagens" aria-label="Paisagens">🏞️</button>
+      </div>
+      <hr class="mob">
       <div class="grp" id="toolBtns"></div>
       <hr>
       <div class="grp cols" id="colors"></div>
@@ -135,7 +178,8 @@ canvas{pointer-events:none}
         <canvas id="cv" width="1600" height="1000"></canvas>
         <div class="layer" id="layer"></div>
       </div>
-      <div class="tray">
+      <div class="tray" id="tray">
+        <div class="sheethd mob"><span>Figurinhas</span><button class="sheetx" data-close title="Fechar" aria-label="Fechar">✕</button></div>
         <input class="search" id="search" type="search" placeholder="🔍 Pesquisar emoji (ex.: gato, coração, chuva)" aria-label="Pesquisar emoji" autocomplete="off">
         <div class="tabs" id="tabs"></div>
         <div class="items" id="items"></div>
@@ -218,7 +262,7 @@ const scene=$('scene'),layer=$('layer'),cv=$('cv'),ctx=cv.getContext('2d');
 
 /* ---------- render ---------- */
 function renderLands(){
-  $('lands').innerHTML=Object.entries(L).map(([k,v])=>`<button class="land" data-k="${k}" aria-pressed="${S.bg===k}"><svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">${v.d('t'+k)}</svg>${v.n}</button>`).join('');
+  $('lands').innerHTML='<div class="sheethd mob"><span>Paisagens</span><button class="sheetx" data-close title="Fechar" aria-label="Fechar">✕</button></div>'+Object.entries(L).map(([k,v])=>`<button class="land" data-k="${k}" aria-pressed="${S.bg===k}"><svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">${v.d('t'+k)}</svg>${v.n}</button>`).join('');
   $('bg').innerHTML=L[S.bg].d('bg');
 }
 function renderTools(){
@@ -287,7 +331,20 @@ function renderAll(){renderLands();renderTools();renderTray();renderStickers();r
 
 /* ---------- desenho ---------- */
 let cur=null;
-const toCv=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)/r.width*W,(e.clientY-r.top)/r.height*H]};
+/* posição do dedo dentro de um elemento (0..1), considerando o app girado 90° no celular em pé */
+const frac=(el,e)=>{const r=el.getBoundingClientRect();
+  return document.documentElement.classList.contains('r90')?[(e.clientY-r.top)/r.height,(r.right-e.clientX)/r.width]:[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};
+const toCv=e=>{const [fx,fy]=frac(cv,e);return[fx*W,fy*H]};
+/* ---------- orientação: celular sempre "deitado" ---------- */
+const mqPort=matchMedia('(max-width:700px) and (orientation:portrait)'),mqLand=matchMedia('(max-height:500px) and (orientation:landscape)');
+function orient(){const h=document.documentElement,r=mqPort.matches;h.classList.toggle('r90',r);h.classList.toggle('ls',r||mqLand.matches)}
+orient();mqPort.addEventListener('change',orient);mqLand.addEventListener('change',orient);
+let triedLock=false;
+document.addEventListener('pointerdown',()=>{
+  if(triedLock||!mqPort.matches)return;triedLock=true;
+  const d=document.documentElement;if(!d.requestFullscreen||!screen.orientation||!screen.orientation.lock)return;
+  d.requestFullscreen({navigationUI:'hide'}).then(()=>screen.orientation.lock('landscape')).catch(()=>{});
+},{capture:true});
 function sprayAt(s,[x,y]){for(let i=0;i<22;i++){const a=rnd()*6.283,d=Math.sqrt(rnd())*s.w;s.p.push([Math.round(x+Math.cos(a)*d),Math.round(y+Math.sin(a)*d)])}}
 cv.addEventListener('pointerdown',e=>{
   if(tool==='mover')return;cv.setPointerCapture(e.pointerId);push();
@@ -411,12 +468,22 @@ scene.addEventListener('pointerup',endPointer);scene.addEventListener('pointerca
 
 /* ---------- gaveta: arrastar para a cena ---------- */
 let tdrag=null;
+const mob=matchMedia('(max-width:700px),(max-height:500px)');
+function closeSheets(){$('tray').classList.remove('open');$('lands').classList.remove('open');$('sheetbg').classList.remove('on')}
+function openSheet(el){closeSheets();el.classList.add('open');$('sheetbg').classList.add('on')}
+$('emojiBtn').addEventListener('click',()=>openSheet($('tray')));
+$('landBtn').addEventListener('click',()=>openSheet($('lands')));
+$('sheetbg').addEventListener('click',closeSheets);
+document.addEventListener('click',e=>{if(e.target.closest('[data-close]'))closeSheets()});
+mob.addEventListener('change',()=>{if(!mob.matches)closeSheets()});
 $('items').addEventListener('pointerdown',e=>{
-  const b=e.target.closest('.it');if(!b)return;e.preventDefault();b.setPointerCapture(e.pointerId);
+  const b=e.target.closest('.it');if(!b)return;
+  if(!mob.matches){e.preventDefault();b.setPointerCapture(e.pointerId)}
   tdrag={e:b.dataset.e,sx:e.clientX,sy:e.clientY,g:null};
 });
 $('items').addEventListener('pointermove',e=>{
   if(!tdrag)return;
+  if(mob.matches){if(Math.hypot(e.clientX-tdrag.sx,e.clientY-tdrag.sy)>10)tdrag=null;return}
   if(!tdrag.g){if(Math.hypot(e.clientX-tdrag.sx,e.clientY-tdrag.sy)<8)return;
     tdrag.g=document.createElement('div');tdrag.g.className='ghost';tdrag.g.textContent=tdrag.e;document.body.appendChild(tdrag.g)}
   tdrag.g.style.left=e.clientX+'px';tdrag.g.style.top=e.clientY+'px';
@@ -430,16 +497,15 @@ function addSticker(e,x,y){
 }
 $('items').addEventListener('pointerup',e=>{
   if(!tdrag)return;const t=tdrag;tdrag=null;
-  if(!t.g){addSticker(t.e,35+Math.random()*30,45+Math.random()*25);return}
-  t.g.remove();const r=scene.getBoundingClientRect();
-  if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)
-    addSticker(t.e,(e.clientX-r.left)/r.width*100,(e.clientY-r.top)/r.height*100);
+  if(!t.g){addSticker(t.e,35+Math.random()*30,45+Math.random()*25);if(mob.matches)closeSheets();return}
+  t.g.remove();const [fx,fy]=frac(scene,e);
+  if(fx>=0&&fx<=1&&fy>=0&&fy<=1)addSticker(t.e,fx*100,fy*100);
 });
 $('items').addEventListener('pointercancel',()=>{if(tdrag&&tdrag.g)tdrag.g.remove();tdrag=null});
-$('items').addEventListener('keydown',e=>{const b=e.target.closest('.it');if(b&&(e.key==='Enter'||e.key===' ')){e.preventDefault();addSticker(b.dataset.e,50,60)}});
+$('items').addEventListener('keydown',e=>{const b=e.target.closest('.it');if(b&&(e.key==='Enter'||e.key===' ')){e.preventDefault();addSticker(b.dataset.e,50,60);if(mob.matches)closeSheets()}});
 
 /* ---------- botões ---------- */
-$('lands').addEventListener('click',e=>{const b=e.target.closest('.land');if(!b||b.dataset.k===S.bg)return;push();S.bg=b.dataset.k;renderLands();save()});
+$('lands').addEventListener('click',e=>{const b=e.target.closest('.land');if(!b)return;if(mob.matches)closeSheets();if(b.dataset.k===S.bg)return;push();S.bg=b.dataset.k;renderLands();save()});
 $('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){cat=b.dataset.c;q='';$('search').value='';renderTray();$('items').scrollTop=0}});
 $('search').addEventListener('input',e=>{q=e.target.value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();renderTray();$('items').scrollTop=0});
 $('toolBtns').addEventListener('click',e=>{const b=e.target.closest('.tb');if(b){tool=b.dataset.k;renderTools();renderStickers()}});
@@ -459,6 +525,7 @@ document.addEventListener('keydown',e=>{
   if(mod&&k==='v'&&clip){e.preventDefault();push();pasteN++;toMover();duplicate(clip,pasteN);renderStickers();redraw();save()}
   if(!mod&&k==='r'&&has){e.preventDefault();groupAction(e.shiftKey?'girarE':'girar')}
   if((e.key==='Delete'||e.key==='Backspace')&&has){e.preventDefault();groupAction('apagar')}
+  if(e.key==='Escape'&&$('sheetbg').classList.contains('on')){closeSheets();return}
   if(e.key==='Escape'&&sel.size){sel=new Set();renderStickers()}
 });
 
