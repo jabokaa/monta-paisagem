@@ -21,8 +21,10 @@
    PICTURE: a própria paisagem em que a criança monta, grande, no centro
    COLOUR and TYPE: girassol + azul-anil + coral; Fredoka arredondada
    LAYOUT: paisagens no topo, ferramentas à esquerda, cena, gaveta de figurinhas embaixo */
-:root{color-scheme:light dark;--bg:light-dark(#ffcf4a,#162244);--panel:light-dark(#fff7df,#22305c);--ink:light-dark(#22305c,#fff3d6);--soft:light-dark(#f3e3b3,#2e3d6b);--acc:light-dark(#ff6b57,#ffb347)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+:root{color-scheme:light dark;--bg:#ffcf4a;--panel:#fff7df;--ink:#22305c;--soft:#f3e3b3;--acc:#ff6b57;--onacc:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#162244;--panel:#22305c;--ink:#fff3d6;--soft:#2e3d6b;--acc:#ffb347;--onacc:#22305c}}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark;--bg:#162244;--panel:#22305c;--ink:#fff3d6;--soft:#2e3d6b;--acc:#ffb347;--onacc:#22305c}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.4 Fredoka,"Baloo 2",system-ui,sans-serif;overflow-x:clip;-webkit-user-select:none;user-select:none}
 .app{max-width:1240px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) max(2vw,10px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(2vw,10px,env(safe-area-inset-left))}
@@ -61,7 +63,7 @@ canvas{pointer-events:none}
 .stk.sel{outline:.3cqw dashed #fff;outline-offset:.4cqw;border-radius:1cqw;cursor:grabbing}
 .selbar{position:absolute;display:flex;gap:4px;background:var(--ink);padding:5px;border-radius:14px;pointer-events:auto;z-index:5}
 .selbar button{width:40px;height:40px;border:0;border-radius:10px;background:var(--panel);color:var(--ink);font:700 20px Fredoka,sans-serif;cursor:pointer}
-.selbar button.del{background:var(--acc);color:#fff}
+.selbar button.del{background:var(--acc);color:var(--onacc)}
 .rot{position:absolute;width:max(36px,4.4cqw);height:max(36px,4.4cqw);border-radius:50%;background:var(--ink);color:var(--panel);border:3px solid #fff;display:grid;place-items:center;font:700 max(20px,2.4cqw)/1 Fredoka,sans-serif;transform:translate(-50%,-50%);pointer-events:auto;cursor:grab;z-index:5;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.35)}
 .rot:active{cursor:grabbing}
 .tray{background:var(--panel);border-radius:22px;padding:10px 12px 12px;box-shadow:0 5px 0 var(--soft)}
@@ -70,7 +72,7 @@ canvas{pointer-events:none}
 .empty{grid-column:1/-1;margin:10px 4px;opacity:.7}
 .tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px}
 .tab{flex:none;border:0;border-radius:999px;padding:6px 12px;font:26px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;min-width:52px;background:var(--soft);color:var(--ink);cursor:pointer;min-height:44px}
-.tab[aria-pressed=true]{background:var(--acc);color:#fff}
+.tab[aria-pressed=true]{background:var(--acc);color:var(--onacc)}
 .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:6px;max-height:252px;overflow-y:auto;overscroll-behavior:contain}
 .it{height:54px;border:0;border-radius:14px;background:transparent;font-size:34px;cursor:grab;touch-action:none;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;transition:transform .12s}
 .it:hover{background:var(--soft);transform:scale(1.12)}
@@ -87,11 +89,11 @@ canvas{pointer-events:none}
 .card .open img{display:block;width:100%;height:100%;object-fit:cover}
 .card .open.cur{outline:4px solid var(--acc);outline-offset:2px}
 .card .when{display:block;font-size:13px;opacity:.75;padding:4px 4px 0}
-.card .del{position:absolute;top:0;right:0;width:40px;height:40px;border:0;border-radius:50%;background:var(--acc);color:#fff;font:700 18px Fredoka,sans-serif;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.card .del{position:absolute;top:0;right:0;width:40px;height:40px;border:0;border-radius:50%;background:var(--acc);color:var(--onacc);font:700 18px Fredoka,sans-serif;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.2)}
 .galempty{grid-column:1/-1;text-align:center;font-size:18px;opacity:.8;padding:30px 10px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--ink);color:var(--panel);padding:12px 22px;border-radius:999px;font:600 18px Fredoka,sans-serif;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:60}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-.tb.big{background:var(--acc);color:#fff}
+.tb.big{background:var(--acc);color:var(--onacc)}
 .mob,.sheetbg{display:none}
 .sheethd{grid-column:1/-1;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;font:700 20px Fredoka,sans-serif}
 .sheetx{width:44px;height:44px;flex:none;border:0;border-radius:12px;background:var(--soft);color:var(--ink);font:700 20px Fredoka,sans-serif;cursor:pointer}
@@ -110,9 +112,9 @@ canvas{pointer-events:none}
   .sz{width:36px;flex:none}
   .tools hr{display:block;width:0;height:30px;border-top:0;border-left:2px dashed var(--soft);flex:none}
   .mob{display:flex}
-  .tb.emo{background:var(--acc);color:#fff;font:26px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+  .tb.emo{background:var(--acc);color:var(--onacc);font:26px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
   .tb.pai{background:var(--soft);font:24px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
-  .sheetbg.on{display:block;position:fixed;inset:0;background:rgba(10,15,40,.55);z-index:40}
+  .sheetbg.on{display:block;position:fixed;inset:0;background:rgba(10,15,40,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);z-index:40}
   .tray,.lands{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:80dvh;margin:0;border-radius:22px 22px 0 0;padding:12px;background:var(--panel);display:none;box-shadow:0 -6px 20px rgba(0,0,0,.3)}
   .tray.open{display:flex;flex-direction:column}
   .lands.open{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;overflow-y:auto;align-content:start;touch-action:pan-y}
@@ -123,7 +125,7 @@ canvas{pointer-events:none}
   .it{touch-action:pan-y}
 }
 @media (hover:none){.it:hover{transform:none;background:transparent}}
-.install{position:fixed;top:12px;right:12px;z-index:30;padding:6px 14px;min-height:40px;font-size:15px}
+.install{position:fixed;top:12px;right:12px;z-index:30;padding:6px 14px;min-height:40px;font-size:15px;color:var(--onacc)}
 /* layout com menu lateral em 2 colunas (html.ls) */
 :root{--W:100vw;--H:100dvh}
 html.ls .app{flex-direction:row}
@@ -134,7 +136,8 @@ html.ls .grp.cols{grid-template-columns:repeat(4,1fr)}
 html.ls .col{width:20px;height:20px}
 html.ls .sz{width:28px}
 html.ls .tools hr{width:100%;height:0;border-left:0;border-top:2px dashed var(--soft)}
-html.ls .tray,html.ls .lands{left:auto;top:0;width:min(440px,70%);max-height:none;border-radius:22px 0 0 22px}@media(prefers-reduced-motion:reduce){.it{transition:none}}
+html.ls .tray,html.ls .lands{left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 32px);border-radius:24px;border:4px solid var(--ink);box-shadow:0 10px 0 rgba(0,0,0,.3),0 20px 50px rgba(0,0,0,.4);padding:16px}
+html.ls .tray{height:min(640px,calc(100dvh - 32px))}@media(prefers-reduced-motion:reduce){.it{transition:none}}
 </style>
 </head>
 <body>
@@ -160,7 +163,7 @@ html.ls .tray,html.ls .lands{left:auto;top:0;width:min(440px,70%);max-height:non
       <hr>
       <div class="grp">
         <button class="tb" id="undo" title="Desfazer"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3"/></svg></button>
-        <button class="tb" id="clear" title="Começar de novo"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
+        <button class="tb" id="clear" title="Novo desenho" aria-label="Novo desenho"><svg viewBox="0 0 24 24"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4M12 11v6M9 14h6"/></svg></button>
       </div>
       <hr>
       <div class="grp">
@@ -499,7 +502,13 @@ $('colors').addEventListener('click',e=>{const b=e.target.closest('.col');if(!b)
 $('sizes').addEventListener('click',e=>{const b=e.target.closest('.sz');if(b){sizeI=+b.dataset.i;renderTools()}});
 function undo(){const s=hist.pop();if(!s)return;S=s;pruneSel();renderLands();renderStickers();redraw();save()}
 $('undo').addEventListener('click',undo);
-$('clear').addEventListener('click',()=>{if(!S.strokes.length&&!S.stickers.length)return;push();S.strokes=[];S.stickers=[];S.gid=null;sel=new Set();renderStickers();redraw();save()});
+/* novo desenho: limpa a tela e desliga o vínculo com o desenho salvo (S.gid), então o próximo "Salvar" cria um desenho novo na galeria */
+function newDrawing(){
+  if(!S.strokes.length&&!S.stickers.length&&!S.gid){toast('Já é um desenho novo ✨');return}
+  push();S={bg:S.bg,gid:null,strokes:[],stickers:[]};sel=new Set();
+  renderLands();renderStickers();redraw();save();toast('Novo desenho ✨');
+}
+$('clear').addEventListener('click',newDrawing);
 document.addEventListener('keydown',e=>{
   if(e.target.closest('input,textarea')||$('gal').open)return;
   const k=e.key.toLowerCase(),mod=e.ctrlKey||e.metaKey,has=tool==='mover'&&selItems().length>0;
@@ -550,7 +559,7 @@ $('saveBtn').addEventListener('click',saveDrawing);
 $('galBtn').addEventListener('click',()=>{renderGal();$('gal').showModal()});
 $('galClose').addEventListener('click',()=>$('gal').close());
 $('gal').addEventListener('click',e=>{if(e.target===$('gal'))$('gal').close()});
-$('galNew').addEventListener('click',()=>{push();S={bg:S.bg,gid:null,strokes:[],stickers:[]};sel=new Set();renderLands();renderStickers();redraw();save();$('gal').close()});
+$('galNew').addEventListener('click',()=>{newDrawing();$('gal').close()});
 $('galGrid').addEventListener('click',async e=>{
   const del=e.target.closest('.del'),op=e.target.closest('.open');
   if(del){if(!confirm('Apagar este desenho?'))return;const id=+del.dataset.id;await dbDel(id).catch(()=>{});if(S.gid===id){S.gid=null;save()}renderGal();return}
